@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工廠火災安全縱深防禦互動報告</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral with Blue Accent -->
+    <!-- Application Structure Plan: The SPA uses a thematic, interactive dashboard structure centered on the 'Defense in Depth' concept. A main visual navigation hub allows users to explore the five defense layers non-linearly. This is more engaging and intuitive than a simple document scroll, helping users grasp the interconnectedness of the five proposals. Each section uses interactive elements (tabs, charts, diagrams) to simplify complex information and highlight key comparisons, improving usability and comprehension. -->
+    <!-- Visualization & Content Choices: Layer 1 (Ducts): Goal=Compare -> Viz=Interactive Tabs -> Interaction=Click -> Justification=Clarifies complex FM standards from Table 1 -> Method=HTML/JS. Layer 2 (Compartmentation): Goal=Compare -> Viz=Side-by-side cards -> Interaction=Click -> Justification=Clearly contrasts the 'dual-track' approach -> Method=HTML/JS. Layer 3 (Construction): Goal=Inform -> Viz=Bar Chart -> Interaction=Static -> Justification=Visually demonstrates the critical problem of steel weakening with heat -> Library=Chart.js. Layer 4 (Separation): Goal=Compare -> Viz=Dynamic Diagram -> Interaction=Buttons -> Justification=Visually explains why Proposal C (space) is superior to A/B (walls) for firefighting -> Method=HTML/JS. Implementation: Goal=Organize -> Viz=Timeline -> Interaction=Hover -> Justification=Presents the multi-year plan clearly -> Method=HTML/CSS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #F5F5F4; /* Warm Neutral */
+            color: #1F2937;
+        }
+        .defense-ring {
+            transition: all 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        .defense-ring:hover {
+            transform: scale(1.03);
+            stroke-width: 4;
+        }
+        .defense-ring.active {
+            stroke: #1D4ED8; /* Stronger Blue for Active */
+            stroke-width: 4;
+        }
+        .nav-link {
+            transition: color 0.3s, border-bottom-color 0.3s;
+        }
+        .nav-link.active {
+            color: #2563EB;
+            border-bottom-color: #2563EB;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .tab-button.active {
+            background-color: #2563EB;
+            color: white;
+        }
+        .proposal-button.active {
+            background-color: #2563EB;
+            color: white;
+            border-color: #2563EB;
+        }
+    </style>
+</head>
+<body class="antialiased">
+    <header id="header" class="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-gray-800">工廠消防安全精進建議</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#defense-in-depth" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">縱深防禦</a>
+                        <a href="#layer-1" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">第一層防禦</a>
+                        <a href="#layer-2" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">第二層防禦</a>
+                        <a href="#layer-3" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">第三層防禦</a>
+                        <a href="#layer-4" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">第四層防禦</a>
+                        <a href="#layer-5" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">第五層防禦</a>
+                        <a href="#implementation" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-blue-600 border-b-2 border-transparent">實施框架</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <section id="defense-in-depth" class="text-center mb-16 scroll-mt-20">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 mb-4">採納「縱深防禦」為最高指導原則</h2>
+            <p class="max-w-3xl mx-auto text-gray-600 mb-8">
+                為應對現代化學工廠複雜且連鎖的災害風險，我們必須採納「縱深防禦」(Defense in Depth)安全哲學。此策略的核心是建立多層次、獨立且互補的安全屏障，以系統性地預防、抑制並減緩火災的發生與擴散。點擊下方各防禦層級以深入了解。
+            </p>
+            <div class="w-full max-w-lg mx-auto">
+                <canvas id="defenseInDepthCanvas" width="500" height="500"></canvas>
+            </div>
+        </section>
+
+        <div class="space-y-20">
+            <section id="layer-1" class="bg-white p-6 md:p-8 rounded-xl shadow-lg scroll-mt-20">
+                <div class="text-center mb-8">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">第一層防禦</span>
+                    <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mt-2">製程與設備完整性</h3>
+                    <p class="text-gray-500 mt-1">對應議程二：排氣風管規範</p>
+                </div>
+                <p class="text-base text-gray-600 max-w-4xl mx-auto mb-10">
+                    本層防禦的目標是在火源發生的第一時間，就阻止其透過設備系統（如排氣管）蔓延。現行法規將排氣風管視為「設備」而非「建築」，形成致命的監管盲區。我們的建議是將國際行業最佳實踐法制化，從源頭阻斷火災蔓延路徑，確保這道成本效益最高的防線能確實發揮作用。
+                </p>
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div class="bg-red-50 p-6 rounded-lg border border-red-200">
+                        <h4 class="text-xl font-bold text-red-800 mb-3">核心問題：潛伏的「火龍」</h4>
+                        <ul class="list-disc list-inside space-y-2 text-red-700">
+                            <li>排氣風管被視為「設備」，脫離建築法規防火審查。</li>
+                            <li>易燃廢氣、粉塵與沉積物使風管成為絕佳的火災蔓延路徑。</li>
+                            <li>火勢可沿管線高速擴散，造成多點火災，增加滅火難度。</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                        <h4 class="text-xl font-bold text-green-800 mb-3">精進建議：將最佳實踐法制化</h4>
+                        <ul class="list-disc list-inside space-y-2 text-green-700">
+                            <li>**強制材質標準**：納入建築法規，強制採用國際認證標準 (如 FM 4922) 材料。</li>
+                            <li>**強制阻斷設備**：貫穿防火區劃處，必須安裝同等時效的防火閘門。</li>
+                            <li>**明確簽證責任**：設計與變更需由專業技師簽證，杜絕管理漏洞。</li>
+                        </ul>
+                    </div>
+                </div>
+                 <div class="mt-10">
+                    <h4 class="text-xl font-bold text-center text-gray-800 mb-4">互動比較：FM 4922 認證風管分類</h4>
+                    <div class="flex justify-center space-x-2 mb-4">
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md transition bg-gray-200 hover:bg-gray-300 active" data-tab="fume-exhaust">一般排氣風管</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md transition bg-gray-200 hover:bg-gray-300" data-tab="fume-smoke-exhaust">排煙排氣風管</button>
+                        <button class="tab-button px-4 py-2 text-sm font-medium rounded-md transition bg-gray-200 hover:bg-gray-300" data-tab="cleanroom-exhaust">無塵室專用</button>
+                    </div>
+                    <div id="tab-content" class="bg-gray-50 p-6 rounded-lg border min-h-[200px]">
+                    </div>
+                </div>
+            </section>
+
+            <section id="layer-2" class="bg-white p-6 md:p-8 rounded-xl shadow-lg scroll-mt-20">
+                <div class="text-center mb-8">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">第二層防禦</span>
+                    <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mt-2">火災抑制</h3>
+                    <p class="text-gray-500 mt-1">對應議程一：防火分區</p>
+                </div>
+                <p class="text-base text-gray-600 max-w-4xl mx-auto mb-10">
+                    當第一層防線失效，本層的作用是將火勢「圍堵」在發生區域內，為人員疏散和消防隊部署爭取時間。然而，傳統的強制面積區劃與高科技產業的生產需求產生衝突。我們建議引入「性能式設計」的雙軌制法規，在堅守安全底線的同時，給予產業發展所需的彈性。
+                </p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-stone-50 p-6 rounded-lg border border-stone-200">
+                        <h4 class="text-xl font-bold text-stone-800 mb-3">軌道A：規定性路徑 (預設)</h4>
+                        <p class="text-stone-600 mb-4">適用於絕大多數一般工廠，提供基礎安全保障。</p>
+                        <div class="flex items-center">
+                             <span class="text-3xl mr-4">🏢</span>
+                            <div>
+                                <p class="font-semibold">維持現行 1,500 m² 強制區劃原則。</p>
+                                <p class="text-sm text-stone-500">清晰、易於執行與審查。</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-sky-50 p-6 rounded-lg border border-sky-200">
+                        <h4 class="text-xl font-bold text-sky-800 mb-3">軌道B：性能式路徑 (替代)</h4>
+                        <p class="text-sky-600 mb-4">針對半導體等有特殊製程需求的產業。</p>
+                        <div class="flex items-center">
+                            <span class="text-3xl mr-4">🔬</span>
+                            <div>
+                                <p class="font-semibold">提交「替代性防火安全計畫」。</p>
+                                <p class="text-sm text-sky-500">需透過科學分析與電腦模擬，證明安全水平更高，並經第三方審查。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="layer-3" class="bg-white p-6 md:p-8 rounded-xl shadow-lg scroll-mt-20">
+                <div class="text-center mb-8">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">第三層防禦</span>
+                    <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mt-2">結構韌性</h3>
+                    <p class="text-gray-500 mt-1">對應議程四：防火構造</p>
+                </div>
+                <p class="text-base text-gray-600 max-w-4xl mx-auto mb-10">
+                    若火勢突破區劃，建築結構安全即成關鍵。本層防禦的核心目的並非讓建築「燒不壞」，而是確保它在規定時間內「燒不倒」，這是保障人員撤離與消防員敢於入室救援的生命底線。現行法規對低樓層工廠的豁免，是造成消防員殉職的主因，必須堅決刪除。
+                </p>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="bg-red-50 p-6 rounded-lg border border-red-200">
+                        <h4 class="text-xl font-bold text-red-800 mb-3">核心問題：致命的豁免條款</h4>
+                        <p class="text-red-700 mb-4">現行法規允許低樓層、大面積的「鐵皮工廠」合法存在，其鋼結構未經防火保護，在火場高溫下會迅速軟化，極易發生毀滅性坍塌。</p>
+                        <div class="chart-container">
+                            <canvas id="steelStrengthChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg border border-green-200">
+                        <h4 class="text-xl font-bold text-green-800 mb-3">精進建議：以「總面積」為唯一標尺</h4>
+                        <p class="text-green-700 mb-4">刪除豁免條款，劃下生命安全底線。</p>
+                        <div class="space-y-4">
+                            <div class="flex items-start">
+                                <span class="text-2xl mr-3 mt-1">📏</span>
+                                <div>
+                                    <p class="font-semibold">新標準</p>
+                                    <p class="text-green-600">任何總樓地板面積超過 1,500 m² 的新建工廠，無論樓層高低，主要結構皆須為「防火構造」。</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-2xl mr-3 mt-1">🛡️</span>
+                                <div>
+                                    <p class="font-semibold">核心價值</p>
+                                    <p class="text-green-600">確保結構在火災下能維持穩定至少 1-2 小時，保障疏散時間，創造搶救機會。</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="layer-4" class="bg-white p-6 md:p-8 rounded-xl shadow-lg scroll-mt-20">
+                <div class="text-center mb-8">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">第四層防禦</span>
+                    <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mt-2">場區級防護</h3>
+                    <p class="text-gray-500 mt-1">對應議程三：防火間隔</p>
+                </div>
+                <p class="text-base text-gray-600 max-w-4xl mx-auto mb-10">
+                    這道防線將視角從單一建築擴展到整個廠區。其目標不僅是防止火災延燒，更重要的是確保消防車輛能順利抵達並擁有足夠空間展開救援。我們必須將「防火間隔」的思維，提升到建立「消防作戰平台」的戰略層次，保障外部救援力量能有效介入。
+                </p>
+                <div class="text-center mb-6">
+                    <h4 class="text-xl font-bold text-gray-800 mb-2">防火間隔強化提案互動比較</h4>
+                    <p class="text-gray-600">點擊下方按鈕，了解為何「保障空間」優於「強化牆體」。</p>
+                </div>
+                <div class="flex justify-center space-x-2 md:space-x-4 mb-6">
+                    <button class="proposal-button px-3 py-2 text-sm font-medium rounded-md border-2 border-gray-300 transition" data-proposal="a">甲案</button>
+                    <button class="proposal-button px-3 py-2 text-sm font-medium rounded-md border-2 border-gray-300 transition" data-proposal="b">乙案</button>
+                    <button class="proposal-button px-3 py-2 text-sm font-medium rounded-md border-2 border-gray-300 transition active" data-proposal="c">丙案 (建議採納)</button>
+                </div>
+                <div id="proposal-display" class="grid md:grid-cols-2 gap-6 items-center bg-gray-50 p-6 rounded-lg border min-h-[300px]">
+                </div>
+            </section>
+
+            <section id="layer-5" class="bg-white p-6 md:p-8 rounded-xl shadow-lg scroll-mt-20">
+                <div class="text-center mb-8">
+                    <span class="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">第五層防禦</span>
+                    <h3 class="text-2xl md:text-3xl font-bold text-gray-900 mt-2">生命安全</h3>
+                    <p class="text-gray-500 mt-1">對應議程五：逃生通道</p>
+                </div>
+                <p class="text-base text-gray-600 max-w-4xl mx-auto mb-10">
+                    這是貫穿所有層級、以人為本的最終防線。無論火災規模多大，清晰、暢通、足夠的避難路徑是保障生命的最後屏障。我們完全支持統一所有工廠的逃生標準，因為生命價值不應因工廠大小而打折，且逃生路徑同時也是消防員深入搜救的進擊路線。
+                </p>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div class="bg-red-50 p-6 rounded-lg border border-red-200 text-center">
+                        <h4 class="text-xl font-bold text-red-800 mb-3">核心問題：危險的豁免</h4>
+                        <p class="text-red-700 mb-4">現行法規對小型工廠的避難設施（門、走廊寬度）規定較寬鬆。</p>
+                        <div class="flex justify-center items-center h-24">
+                            <span class="text-5xl">🚪</span>
+                            <span class="text-2xl mx-4">➡️</span>
+                            <span class="text-3xl">좁</span>
+                        </div>
+                        <p class="mt-4 text-sm text-red-600">狹窄的通道既不利於員工逃生，也阻礙消防員救援。</p>
+                    </div>
+                    <div class="bg-green-50 p-6 rounded-lg border border-green-200 text-center">
+                        <h4 class="text-xl font-bold text-green-800 mb-3">精進建議：統一標準</h4>
+                        <p class="text-green-700 mb-4">取消豁免，所有工廠適用一致的高標準。</p>
+                         <div class="flex justify-center items-center h-24">
+                            <span class="text-5xl">🚪</span>
+                            <span class="text-2xl mx-4">➡️</span>
+                            <span class="text-5xl">🏃‍♂️👩‍🚒</span>
+                        </div>
+                        <p class="mt-4 text-sm text-green-600">寬敞的通道是對員工與救援人員的雙重保障。</p>
+                    </div>
+                </div>
+            </section>
+            
+            <section id="implementation" class="bg-white p-6 md:p-8 rounded-xl shadow-lg scroll-mt-20">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl md:text-4xl font-bold text-gray-900">立法與產業實施的戰略框架</h2>
+                    <p class="max-w-3xl mx-auto text-gray-600 mt-4">
+                        僅通過新法條並不足夠。本次修法最大的挑戰在於處理全台數千座既有的不合規工廠。我們必須啟動一個結合「強制性」與「輔導性」的升級改造框架，才能真正解決歷史風險。
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">既有工廠強制性升級改造時程</h3>
+                    <div class="relative w-full max-w-4xl mx-auto py-4">
+                        <div class="absolute left-0 top-1/2 w-full h-1 bg-gray-300 transform -translate-y-1/2"></div>
+                        <div class="relative flex justify-between items-center">
+                            <div class="text-center w-1/3">
+                                <div class="relative">
+                                    <div class="mx-auto w-6 h-6 rounded-full bg-blue-600 border-4 border-white"></div>
+                                </div>
+                                <p class="mt-2 font-semibold">第 2 年</p>
+                                <p class="text-sm text-gray-600">提交改造/拆除計畫</p>
+                            </div>
+                            <div class="text-center w-1/3">
+                                <div class="relative">
+                                    <div class="mx-auto w-6 h-6 rounded-full bg-blue-600 border-4 border-white"></div>
+                                </div>
+                                <p class="mt-2 font-semibold">第 3.5 年</p>
+                                <p class="text-sm text-gray-600">取得工程許可</p>
+                            </div>
+                            <div class="text-center w-1/3">
+                                <div class="relative">
+                                    <div class="mx-auto w-6 h-6 rounded-full bg-blue-600 border-4 border-white"></div>
+                                </div>
+                                <p class="mt-2 font-semibold">第 7 年</p>
+                                <p class="text-sm text-gray-600">完成所有工程</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-12">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">「蘿蔔與棍子」：配套支持方案</h3>
+                    <div class="grid md:grid-cols-3 gap-6 text-center">
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <span class="text-4xl">💰</span>
+                            <h4 class="font-bold mt-3">財政激勵</h4>
+                            <p class="text-sm text-gray-600 mt-1">提供低利貸款、稅收抵免、直接補助等措施，降低合規成本。</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <span class="text-4xl">🤝</span>
+                            <h4 class="font-bold mt-3">技術援助</h4>
+                            <p class="text-sm text-gray-600 mt-1">成立專責輔導機構，提供一站式諮詢、專家名錄與技術研討會。</p>
+                        </div>
+                        <div class="bg-gray-50 p-6 rounded-lg">
+                            <span class="text-4xl">⚖️</span>
+                            <h4 class="font-bold mt-3">風險分級</h4>
+                            <p class="text-sm text-gray-600 mt-1">依風險高低分梯隊實施，優先處理高風險工廠，避免市場混亂。</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="bg-white mt-16 border-t">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-gray-500">
+            <p>&copy; 2025 工廠火災安全精進建議報告。此為根據專家報告生成之互動式網頁。</p>
+        </div>
+    </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    const defenseData = {
+        layers: [
+            { id: 'layer-5', name: '生命安全', color: '#60A5FA', radius: 50 },
+            { id: 'layer-4', name: '場區級防護', color: '#3B82F6', radius: 90 },
+            { id: 'layer-3', name: '結構韌性', color: '#2563EB', radius: 130 },
+            { id: 'layer-2', name: '火災抑制', color: '#1D4ED8', radius: 170 },
+            { id: 'layer-1', name: '製程與設備完整性', color: '#1E3A8A', radius: 210 },
+        ],
+        center: { x: 250, y: 250 }
+    };
+
+    const canvas = document.getElementById('defenseInDepthCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function drawDefenseRings(activeIndex = -1) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = "bold 16px 'Noto Sans TC', sans-serif";
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        defenseData.layers.slice().reverse().forEach((layer, index) => {
+            const reversedIndex = defenseData.layers.length - 1 - index;
+            ctx.beginPath();
+            ctx.arc(defenseData.center.x, defenseData.center.y, layer.radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = (reversedIndex === activeIndex) ? '#EF4444' : layer.color;
+            ctx.lineWidth = (reversedIndex === activeIndex) ? 6 : 4;
+            ctx.stroke();
+
+            ctx.fillStyle = layer.color;
+            const textY = defenseData.center.y - layer.radius - 20;
+            ctx.fillText(layer.name, defenseData.center.x, textY);
+        });
+
+        ctx.beginPath();
+        ctx.arc(defenseData.center.x, defenseData.center.y, 20, 0, 2 * Math.PI);
+        ctx.fillStyle = '#111827';
+        ctx.fill();
+        ctx.fillStyle = 'white';
+        ctx.font = "bold 12px sans-serif";
+        ctx.fillText('核心', defenseData.center.x, defenseData.center.y);
+    }
+    
+    drawDefenseRings();
+
+    canvas.addEventListener('mousemove', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const dist = Math.sqrt(Math.pow(x - defenseData.center.x, 2) + Math.pow(y - defenseData.center.y, 2));
+        
+        let activeIndex = -1;
+        for (let i = 0; i < defenseData.layers.length; i++) {
+            const layer = defenseData.layers[i];
+            const nextRadius = (i > 0) ? defenseData.layers[i - 1].radius : 0;
+            if (dist <= layer.radius && dist > nextRadius) {
+                activeIndex = i;
+                break;
+            }
+        }
+        
+        canvas.style.cursor = activeIndex !== -1 ? 'pointer' : 'default';
+        drawDefenseRings(activeIndex);
+    });
+
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const dist = Math.sqrt(Math.pow(x - defenseData.center.x, 2) + Math.pow(y - defenseData.center.y, 2));
+
+        let targetId = null;
+        for (let i = 0; i < defenseData.layers.length; i++) {
+            const layer = defenseData.layers[i];
+            const nextRadius = (i > 0) ? defenseData.layers[i - 1].radius : 0;
+            if (dist <= layer.radius && dist > nextRadius) {
+                targetId = layer.id;
+                break;
+            }
+        }
+
+        if (targetId) {
+            const targetElement = document.getElementById(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+    });
+
+
+    const steelStrengthCtx = document.getElementById('steelStrengthChart').getContext('2d');
+    new Chart(steelStrengthCtx, {
+        type: 'bar',
+        data: {
+            labels: ['常溫 (20°C)', '火場中 (550°C)', '火場中 (700°C)'],
+            datasets: [{
+                label: '鋼結構相對強度',
+                data: [100, 50, 20],
+                backgroundColor: [
+                    'rgba(59, 130, 246, 0.6)',
+                    'rgba(239, 68, 68, 0.6)',
+                    'rgba(220, 38, 38, 0.8)',
+                ],
+                borderColor: [
+                    'rgba(59, 130, 246, 1)',
+                    'rgba(239, 68, 68, 1)',
+                    'rgba(220, 38, 38, 1)',
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 110,
+                    title: {
+                        display: true,
+                        text: '相對強度 (%)'
+                    }
+                }
+            },
+            plugins: {
+                title: {
+                    display: true,
+                    text: '溫度對鋼結構強度的影響',
+                    font: {
+                        size: 16
+                    }
+                },
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+
+    const proposalData = {
+        a: {
+            title: '甲案：擴大管制並提高牆體時效',
+            verdict: '拒絕',
+            verdictColor: 'red',
+            image: '🧱',
+            description: '理論上延燒抵抗能力最強，但 2 小時防火時效的外牆會形成難以突破的屏障，嚴重阻礙消防員破窗排煙、入室救援等戰術行動，反成致命障礙。',
+        },
+        b: {
+            title: '乙案：維持範圍並提高牆體時效',
+            verdict: '拒絕',
+            verdictColor: 'red',
+            image: '🧱',
+            description: '與甲案同樣存在嚴重阻礙消防搶救的致命缺陷。過度強化的牆體不利於主動救援。',
+        },
+        c: {
+            title: '丙案：強制退縮保障操作空間',
+            verdict: '採納並強化',
+            verdictColor: 'green',
+            image: '👨‍🚒',
+            description: '強制自地界線退縮至少 1.5 公尺，保障了消防員最基本的操作空間。在防止初期延燒與允許消防員介入之間取得了最佳平衡，是邁向國際標準的第一步。',
+        }
+    };
+
+    const proposalButtons = document.querySelectorAll('.proposal-button');
+    const proposalDisplay = document.getElementById('proposal-display');
+
+    function updateProposalView(proposalKey) {
+        const data = proposalData[proposalKey];
+        proposalDisplay.innerHTML = `
+            <div class="text-center md:text-left">
+                <h5 class="text-xl font-bold text-gray-800">${data.title}</h5>
+                <p class="mt-2 text-lg font-semibold text-${data.verdictColor}-600">建議：${data.verdict}</p>
+                <p class="mt-4 text-gray-600">${data.description}</p>
+            </div>
+            <div class="flex items-center justify-center bg-${data.verdictColor}-100 p-8 rounded-lg">
+                <div class="text-center">
+                    <span class="text-6xl">${data.image}</span>
+                    <p class="mt-2 font-semibold text-lg text-${data.verdictColor}-800">${proposalKey.toUpperCase()}案示意</p>
+                </div>
+            </div>
+        `;
+
+        proposalButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.proposal === proposalKey);
+        });
+    }
+
+    proposalButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            updateProposalView(button.dataset.proposal);
+        });
+    });
+
+    updateProposalView('c');
+    
+    const tabData = {
+        'fume-exhaust': {
+            title: '一般排氣風管 (Fume Exhaust Duct Systems)',
+            performance: '防止火勢在管道內蔓延，但管道本身可能失去結構完整性（如熔化、坍塌），從而失去排煙功能。',
+            application: '一般工業用途，煙霧損害非首要考量，且不穿越重要防火區劃的場合。'
+        },
+        'fume-smoke-exhaust': {
+            title: '排煙排氣風管 (Fume and Smoke Exhaust Duct Systems)',
+            performance: '防止火勢蔓延，**且**在火災中能維持其結構斷面，持續發揮排煙功能。',
+            application: '關鍵製程排氣系統，或需要火災時維持排煙功能的場所，但非高度煙霧敏感區。'
+        },
+        'cleanroom-exhaust': {
+            title: '無塵室專用排煙排氣風管',
+            performance: '具備上述所有優點（防止火蔓延、維持結構），**且**其外部材質經測試，受火時產生的煙霧量極低。',
+            application: '半導體無塵室、製藥廠等對微粒污染和煙霧損害極度敏感的高價值場所。'
+        }
+    };
+
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContent = document.getElementById('tab-content');
+
+    function updateTabView(tabKey) {
+        const data = tabData[tabKey];
+        tabContent.innerHTML = `
+            <h5 class="text-lg font-bold text-gray-800 mb-3">${data.title}</h5>
+            <div class="space-y-4">
+                <div>
+                    <p class="font-semibold text-gray-700">火災下性能表現：</p>
+                    <p class="text-gray-600">${data.performance}</p>
+                </div>
+                <div>
+                    <p class="font-semibold text-gray-700">建議應用場景：</p>
+                    <p class="text-gray-600">${data.application}</p>
+                </div>
+            </div>
+        `;
+        tabButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabKey);
+        });
+    }
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            updateTabView(button.dataset.tab);
+        });
+    });
+
+    updateTabView('fume-exhaust');
+
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('section');
+    const headerHeight = document.getElementById('header').offsetHeight;
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - headerHeight - 20;
+            if (pageYOffset >= sectionTop) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href').substring(1) === current) {
+                link.classList.add('active');
+            }
+        });
+    });
+    
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                window.scrollTo({
+                    top: targetElement.offsetTop - headerHeight,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+});
+</script>
+</body>
+</html>
